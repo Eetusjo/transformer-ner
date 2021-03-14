@@ -232,7 +232,7 @@ def main(argv):
             tokenizer,
             word_labels,
             config,
-            args
+            options
         )
 
     return 0
