@@ -27,8 +27,9 @@ def argparser():
 def main(argv):
     options = argparser().parse_args(argv[1:])
 
-    ner_model, decoder, tokenizer, word_labels, config = load_ner_model(
-        options.ner_model_dir)
+    ner_model, decoder, tokenizer, word_labels, config, saved_args = load_ner_model(
+        options.ner_model_dir
+    )
 
     token_labeler = IobesTokenLabeler(word_labels)
     label_encoder = LabelEncoder(token_labeler.labels())
@@ -43,7 +44,7 @@ def main(argv):
     )
 
     example_generator = 'wrap'    # TODO read from config
-    seq_len = 512    # TODO read from config
+    seq_len = 128    # TODO read from config
     example_generator = EXAMPLE_GENERATORS[example_generator](
         seq_len,
         Token(tokenizer.cls_token, is_special=True, masked=False),

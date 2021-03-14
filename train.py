@@ -231,7 +231,8 @@ def main(argv):
             decoder,
             tokenizer,
             word_labels,
-            config
+            config,
+            args
         )
 
     return 0

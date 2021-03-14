@@ -78,7 +78,7 @@ def build_ner_model(pretrained_model, num_labels, seq_len):
 
     # workaround for lack of support for saving pretrained models
     pretrained_model = get_pretrained_model_main_layer(pretrained_model)
-    
+
     input_ids = Input(
         shape=(seq_len,), dtype='int32', name='input_ids')
     token_type_ids = Input(
@@ -125,12 +125,16 @@ def _ner_decoder_path(ner_model_dir):
     return os.path.join(ner_model_dir, 'decoder.json')
 
 
-def save_ner_model(directory, ner_model, decoder, tokenizer, labels, config):
+def save_ner_model(directory, ner_model, decoder, tokenizer, labels, config, args):
     os.makedirs(directory, exist_ok=True)
     ner_model.save(_ner_model_path(directory))
     decoder.save(_ner_decoder_path(directory))
     config.save_pretrained(directory)
     tokenizer.save_pretrained(directory)
+
+    with open(os.path.join(directory, "args.json"), "w") as f:
+        json.dump(args, f, ensure_ascii=False, indent=4)
+
     with open(_ner_labels_path(directory), 'w') as out:
         for label in labels:
             print(label, file=out)
@@ -172,4 +176,7 @@ def load_ner_model(ner_model_dir):
     )
     decoder = ViterbiDecoder.load(_ner_decoder_path(ner_model_dir))
     labels = load_labels(_ner_labels_path(ner_model_dir))
-    return ner_model, decoder, tokenizer, labels, config
+
+    with open(os.path.join(ner_model_dir, "args.json"), "r") as f:
+        args = json.load(f)
+    return ner_model, decoder, tokenizer, labels, config, args
