@@ -133,7 +133,7 @@ def save_ner_model(directory, ner_model, decoder, tokenizer, labels, config, arg
     tokenizer.save_pretrained(directory)
 
     with open(os.path.join(directory, "args.json"), "w") as f:
-        json.dump(args, f, ensure_ascii=False, indent=4)
+        json.dump(vars(args), f, ensure_ascii=False, indent=4)
 
     with open(_ner_labels_path(directory), 'w') as out:
         for label in labels:
