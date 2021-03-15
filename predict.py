@@ -19,6 +19,10 @@ def argparser():
                     help='Trained NER model directory')
     ap.add_argument('--data', default=None, required=True,
                     help='Test data')
+    ap.add_argument('--out_greedy', help="Output file path for greedy decoding",
+                    default=None, required=False)
+    ap.add_argument('--out_viterbi', help="Output file path for viterbi decoding",
+                    default=None, required=False)
     ap.add_argument('--separator', default=None,
                     help='CoNLL format field separator')
     return ap
@@ -43,8 +47,8 @@ def main(argv):
         #test=True
     )
 
-    example_generator = 'wrap'    # TODO read from config
-    seq_len = 128    # TODO read from config
+    example_generator = saved_args["examples"] # TODO read from config
+    seq_len = saved_args["max_seq_length"] # TODO read from config
     example_generator = EXAMPLE_GENERATORS[example_generator](
         seq_len,
         Token(tokenizer.cls_token, is_special=True, masked=False),
@@ -69,8 +73,8 @@ def main(argv):
         t.document for e in test_examples for t in e.tokens if not t.is_special
     )
 
-    summarize_preds = 'avg'    # TODO read from config
-    assign_labels = 'first'    # TODO read from config
+    summarize_preds = saved_args["summarize_preds"]    # TODO read from config
+    assign_labels = saved_args["assign_labels"]    # TODO read from config
     summarize_predictions = PREDICTION_SUMMARIZERS[summarize_preds]
     assign_labels = LABEL_ASSIGNERS[assign_labels]
 
@@ -78,8 +82,9 @@ def main(argv):
         summarize_predictions(document)
         assign_labels(document, label_encoder)
 
-    with open('greedy.tsv', 'w') as out:
-        write_conll(documents, out=out)
+    if options.out_greedy:
+        with open(options.out_greedy, 'w') as out:
+            write_conll(documents, out=out)
 
     print(conlleval_report(documents))
 
@@ -96,8 +101,9 @@ def main(argv):
             for word in sentence.words:
                 word.predicted_label = word.tokens[0].viterbi_label
 
-    with open('viterbi.tsv', 'w') as out:
-        write_conll(documents, out=out)
+    if options.out_viterbi:
+        with open(options.out_viterbi, 'w') as out:
+            write_conll(documents, out=out)
 
     print(conlleval_report(documents))
 
