@@ -96,7 +96,7 @@ def main(argv):
     args = parser.parse_args()
 
     app.tagger = Tagger.load(args.ner_model_dir)
-    app.run(port=8080)
+    app.run(host='0.0.0.0', port=8080)
     return 0
 
 
