@@ -1,4 +1,5 @@
 import argparse
+import html
 import json
 import os
 import sys
@@ -59,12 +60,12 @@ class Tagger(object):
     def tag(self, text, mode, output):
         if mode == "sentence":
             words = self.pretokenizer(text)
-            docs = [Document([Sentence([Word(token, "O") for token in words])])]
+            docs = [Document([Sentence([Word(html.unescape(token), "O") for token in words])])]
         elif mode == "doc":
             sent_objs = []
             sents = self.splitter([text])
             for sent in sents:
-                sent_objs.append(Sentence([Word(token, "O") for token in self.pretokenizer(sent)]))
+                sent_objs.append(Sentence([Word(html.unescape(token), "O") for token in self.pretokenizer(sent)]))
             docs = [Document(sent_objs)]
         else:
             return "{}"
